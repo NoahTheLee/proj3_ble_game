@@ -10,6 +10,7 @@ String data;
 bool isTouchIn(int x, int y, int w, int h, int tx, int ty);
 bool pickIsClient();
 void checkData();
+void handleHeartbeat();
 
 // ====================== SETUP ======================
 void setup()
@@ -28,28 +29,10 @@ void loop()
 {
   M5.update();
 
-  // ====================== ROLE-SPECIFIC HANDLING ======================
-  if (isClient)
-  {
-    BLE_ClientHandle(); // keep client scanning & connected
-  }
-  else
-  {
-    BLE_ServerPollReceive(); // server must poll for incoming data
-  }
-
   // ====================== SEND EXAMPLE (both devices do this the same way) ======================
   if (M5.BtnA.wasPressed())
   { // or any trigger you want
     BLE_Send("Hello from " + String(isClient ? "CLIENT" : "SERVER") + " at " + String(millis()));
-  }
-
-  // Optional status
-  if (BLE_IsConnected())
-  {
-    M5.Lcd.fillRect(0, 0, 100, 20, GREEN);
-    M5.Lcd.setCursor(5, 5);
-    M5.Lcd.print("CONNECTED");
   }
 
   delay(50); // adjust to your desired rate — BLE handles the heavy lifting
@@ -140,5 +123,27 @@ void checkData()
     M5.Lcd.fillRect(0, 200, 320, 40, BLACK);
     M5.Lcd.setCursor(10, 210);
     M5.Lcd.print("RX: " + data.substring(0, 20)); // shorten if too long
+  }
+}
+
+/*
+Periodically update the client/server data
+*/
+void handleHeartbeat()
+{
+  if (isClient)
+  {
+    BLE_ClientHandle(); // keep client scanning & connected
+  }
+  else
+  {
+    BLE_ServerPollReceive(); // server must poll for incoming data
+  }
+
+  if (BLE_IsConnected())
+  {
+    M5.Lcd.fillRect(0, 0, 100, 20, GREEN);
+    M5.Lcd.setCursor(5, 5);
+    M5.Lcd.print("CONNECTED");
   }
 }
