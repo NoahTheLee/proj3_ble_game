@@ -130,13 +130,13 @@ bool launchButtonGame(boolean isClient)
     M5.Lcd.setTextSize(2);
 
     // Define puzzles with explicit hint text
-    ButtonPuzzle puzzles[] = {
-        {{0, 1, 2, 3}, "Press Circle -> Square -> Triangle -> Cross"},
-        {{3, 2, 1, 0}, "Press Cross -> Triangle -> Square -> Circle"},
-        {{1, 3, 0, 2}, "Press Square -> Cross -> Circle -> Triangle"},
-        {{2, 0, 3, 1}, "Press Triangle -> Circle -> Cross -> Square"},
-        {{0, 2, 3, 1}, "Press Circle -> Triangle -> Cross -> Square"},
-        {{1, 0, 3, 2}, "Press Square -> Circle -> Cross -> Triangle"}};
+    ButtonPuzzle puzzles[] = {// 0 = circle, 1 = square, 2 = triangle, 3 = cross
+                              {{0, 1, 2, 3}, "Press Circle -> Square -> Triangle -> Cross"},
+                              {{3, 2, 1, 0}, "Press Cross -> Triangle -> Square -> Circle"},
+                              {{1, 3, 0, 2}, "Press Square -> Cross -> Circle -> Triangle"},
+                              {{2, 0, 3, 1}, "Press Triangle -> Circle -> Cross -> Square"},
+                              {{0, 2, 3, 1}, "Press Circle -> Triangle -> Cross -> Square"},
+                              {{1, 0, 3, 2}, "Press Square -> Circle -> Cross -> Triangle"}};
 
     int numPuzzles = sizeof(puzzles) / sizeof(puzzles[0]);
     int selected = rand() % numPuzzles;

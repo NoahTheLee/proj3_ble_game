@@ -26,7 +26,7 @@ bool isTouchIn(int x, int y, int w, int h, int tx, int ty);
 bool pickIsClient();
 void checkData();
 void syncRand();
-void runGameSync(bool (*launchGame)(bool), String gameName);
+void runGameSync(bool (*launchGame)(bool, int), String gameName, int difficulty);
 
 // ====================== SETUP ======================
 void setup()
@@ -59,22 +59,22 @@ void loop()
 
   while (true)
   {
-    // runGameSync(launchWireGame, "Wire Game");
-    switch (rand() % 4)
-    {
-    case 0:
-      runGameSync(launchButtonGame, "Button Game");
-      break;
-    case 1:
-      runGameSync(launchWireGame, "Wire Game");
-      break;
-    case 2:
-      runGameSync(launchCodeEntryGame, "Code Game");
-      break;
-    case 3:
-      runGameSync(launchMazeGame, "Maze Game");
-      break;
-    }
+    runGameSync(launchWireGame, "Wire Game", 0);
+    // switch (rand() % 4)
+    // {
+    // case 0:
+    //   runGameSync(launchButtonGame, "Button Game", 0);
+    //   break;
+    // case 1:
+    //   runGameSync(launchWireGame, "Wire Game", 0);
+    //   break;
+    // case 2:
+    //   runGameSync(launchCodeEntryGame, "Code Game", 0);
+    //   break;
+    // case 3:
+    //   runGameSync(launchMazeGame, "Maze Game", 0);
+    //   break;
+    // }
 
     if (numWins == 5)
     {
@@ -205,9 +205,9 @@ void syncRand()
 }
 
 // Generic function to run any game and handle server/client sync
-void runGameSync(bool (*launchGame)(bool), String gameName)
+void runGameSync(bool (*launchGame)(bool, int), String gameName, int difficulty)
 {
-  bool result = launchGame(isClient); // call the passed-in function
+  bool result = launchGame(isClient, difficulty); // call the passed-in function
 
   if (isClient)
   {

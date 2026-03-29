@@ -192,7 +192,7 @@ bool doClientMaze(MazePuzzle p)
 }
 
 // ====================== LAUNCH ======================
-bool launchMazeGame(boolean isClient)
+bool launchMazeGame(boolean isClient, int difficulty)
 {
     M5.Lcd.fillScreen(BLACK);
 

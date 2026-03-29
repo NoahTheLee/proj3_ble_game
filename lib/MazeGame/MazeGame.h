@@ -2,4 +2,4 @@
 
 #include <M5Core2.h>
 
-bool launchMazeGame(boolean isClient);
+bool launchMazeGame(boolean isClient, int difficulty);

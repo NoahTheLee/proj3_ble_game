@@ -8,19 +8,27 @@ struct CodePuzzle
     const char *hostHint;
 };
 
-bool launchCodeEntryGame(boolean isClient)
+bool launchCodeEntryGame(boolean isClient, int difficulty)
 {
     M5.Lcd.fillScreen(BLACK);
     M5.Lcd.setTextColor(WHITE);
     M5.Lcd.setTextSize(2);
 
     CodePuzzle puzzles[] = {
-        {"123", "Enter the code: 123"},
-        {"4829", "Enter the code: 4829"},
-        {"9876", "Enter the code: 9876"},
-        {"11223", "Enter the code: 11223"},
-        {"55555", "Enter the code: 55555"},
-        {"0", "Enter the code: 0"}};
+        {"34156", "As their positions: Earth, Mars, Mercury, Jupiter, Saturn"},
+        {"345468", "How many letters each: 1, 5, 7, 9, 11, 13"},
+        {"0348304", "Corners: Circle, Triangle, Square, Octagon, Triangle, Circle, Square"},
+        {"5903", "SQRT(25), 3^2, 0^(3294*2), 27/9"},
+        {"82448", "Legs: Spider, Human, Cat, Dog, Spider"},
+        {"15", "Which is not prime: 11, 13, 15, 7, 29, 23, 31"},
+        // {"9876", "Enter the code: 9876"},
+        // {"123", "Enter the code: 123"},
+        // {"4829", "Enter the code: 4829"},
+        // {"9876", "Enter the code: 9876"},
+        // {"11223", "Enter the code: 11223"},
+        // {"55555", "Enter the code: 55555"},
+        // {"0", "Enter the code: 0"}
+    };
 
     int numPuzzles = sizeof(puzzles) / sizeof(puzzles[0]);
     int selected = rand() % numPuzzles;

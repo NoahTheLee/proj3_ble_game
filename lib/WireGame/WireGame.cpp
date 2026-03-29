@@ -11,21 +11,30 @@ struct WirePuzzle // Simple struct to extract puzzle setup
     const char *hint;
 };
 
-bool launchWireGame(boolean isClient)
+bool launchWireGame(boolean isClient, int difficulty)
 {
     M5.Lcd.fillScreen(BLACK);
     M5.Lcd.setTextColor(WHITE);
     M5.Lcd.setTextSize(2);
 
-    WirePuzzle puzzles[] = {// TODO: Update hints to be puzzles or something
-                            // {{RED, BLUE, GREEN}, 3, 1, "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789"},
-                            {{RED, BLUE, GREEN}, 3, 1, "Cut the BLUE wire"},
-                            {{YELLOW, RED, RED, WHITE}, 4, 3, "Cut the LAST wire"},
-                            {{GREEN, BLUE, GREEN, RED}, 4, 0, "Cut the FIRST wire"},
-                            {{WHITE, YELLOW, BLUE}, 3, 2, "Cut the BLUE wire"}};
+    WirePuzzle puzzles[] = {
+        // TODO: Update hints to be puzzles or something
+        // {{RED, BLUE, GREEN}, 3, 1, "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789"},
+        // {{RED, BLUE, GREEN, WHITE, ORANGE, PURPLE}, 6, 1, "Cut the BLUE wire"},
+        // {{RED, BLUE, GREEN}, 3, 1, "Cut the BLUE wire"},
+        // {{YELLOW, RED, RED, WHITE}, 4, 3, "Cut the LAST wire"},
+        // {{GREEN, BLUE, GREEN, RED}, 4, 0, "Cut the FIRST wire"},
+        // {{WHITE, YELLOW, BLUE}, 3, 2, "Cut the BLUE wire"},
 
-    // WirePuzzle p = puzzles[rand() % sizeof(puzzles) / sizeof(puzzles[0])];
-    WirePuzzle p = puzzles[0];
+        {{YELLOW, RED, RED, WHITE, BLUE}, 5, 3, "Yellow is youngest, Reds are twins, White is oldest, and Blue is a stranger. Who dies of old age first?"},
+        {{RED, BLUE, GREEN, YELLOW, BLUE, GREEN}, 6, 4, "Cut the first wire that appears for a second time."},
+        {{WHITE, GREEN, WHITE, ORANGE, BLUE, GREEN}, 6, 4, "Cut the second wire that only appears once."},
+        {{RED, GREEN, BLUE, PURPLE}, 4, 1, "Cut the color that is directly opposite the first wire on the color wheel."},
+        {{RED, YELLOW, ORANGE, BLUE, YELLOW}, 5, 3, "Cut the wire whose letters match its position"},
+        {{PURPLE, ORANGE, WHITE, RED, RED, BLUE}, 6, 5, "Count the letters in each color. 4*5-6-3+1 = ?"}};
+
+    WirePuzzle p = puzzles[rand() % sizeof(puzzles) / sizeof(puzzles[0])];
+    // WirePuzzle p = puzzles[0];
 
     if (!isClient)
     { // skip if server
