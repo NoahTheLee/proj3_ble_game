@@ -129,14 +129,19 @@ bool launchButtonGame(boolean isClient)
     M5.Lcd.setTextColor(WHITE);
     M5.Lcd.setTextSize(2);
 
-    // Define puzzles with explicit hint text
-    ButtonPuzzle puzzles[] = {// 0 = circle, 1 = square, 2 = triangle, 3 = cross
-                              {{0, 1, 2, 3}, "Press Circle -> Square -> Triangle -> Cross"},
-                              {{3, 2, 1, 0}, "Press Cross -> Triangle -> Square -> Circle"},
-                              {{1, 3, 0, 2}, "Press Square -> Cross -> Circle -> Triangle"},
-                              {{2, 0, 3, 1}, "Press Triangle -> Circle -> Cross -> Square"},
-                              {{0, 2, 3, 1}, "Press Circle -> Triangle -> Cross -> Square"},
-                              {{1, 0, 3, 2}, "Press Square -> Circle -> Cross -> Triangle"}};
+    // Define puzzles with cryptic hint text
+    // 0=circle, 1=square, 2=triangle, 3=cross
+    ButtonPuzzle puzzles[] = {
+        {{0, 1, 2, 3}, "No corners, then 4, then 3, then a plus"},
+        {{3, 2, 1, 0}, "Start with the one that marks the spot, end with the endless"},
+        {{1, 3, 0, 2}, "4 corners, 2 lines, no corners, 3 corners"},
+        {{2, 0, 3, 1}, "Pyramid first, then the wheel, then the sword, then the window"},
+        {{0, 2, 3, 1}, "Roll it, climb it, cross it, box it"},
+        {{1, 0, 3, 2}, "The shape of a tile, a coin, a crossroad, a mountain"},
+        {{3, 0, 1, 2}, "Where paths meet, what rolls forever, 4 equal sides, pointy peak"},
+        {{2, 3, 0, 1}, "3 sides, then an intersection, then no sides, then all equal"},
+        {{0, 3, 2, 1}, "The sun, a junction, an arrow, a block"},
+        {{3, 1, 2, 0}, "A plus sign, a box, a tent, a ring"}};
 
     int numPuzzles = sizeof(puzzles) / sizeof(puzzles[0]);
     int selected = rand() % numPuzzles;
