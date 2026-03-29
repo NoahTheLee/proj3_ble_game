@@ -59,26 +59,29 @@ void loop()
 
   while (true)
   {
-    runGameSync(launchWireGame, "Wire Game", 0);
-    // switch (rand() % 4)
-    // {
-    // case 0:
-    //   runGameSync(launchButtonGame, "Button Game", 0);
-    //   break;
-    // case 1:
-    //   runGameSync(launchWireGame, "Wire Game", 0);
-    //   break;
-    // case 2:
-    //   runGameSync(launchCodeEntryGame, "Code Game", 0);
-    //   break;
-    // case 3:
-    //   runGameSync(launchMazeGame, "Maze Game", 0);
-    //   break;
-    // }
+    switch (rand() % 4)
+    {
+    case 0:
+      runGameSync(launchButtonGame, "Button Game", 0);
+      break;
+    case 1:
+      runGameSync(launchWireGame, "Wire Game", 0);
+      break;
+    case 2:
+      runGameSync(launchCodeEntryGame, "Code Game", 0);
+      break;
+    case 3:
+      runGameSync(launchMazeGame, "Maze Game", 0);
+      break;
+    }
 
     if (numWins == 5)
     {
       showWin();
+    }
+    if (numLives == 0)
+    {
+      showLose();
     }
   }
 

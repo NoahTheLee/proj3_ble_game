@@ -5,3 +5,4 @@
 // Draws centered, wrapped text block on screen
 void drawCenteredTextBlock(const char *text);
 void showWin();
+void showLose();

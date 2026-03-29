@@ -157,3 +157,94 @@ void showWin()
     // Clean up when dismissed
     M5.Lcd.fillScreen(BLACK);
 }
+
+// ====================== YOU LOST! SCREEN (add to the bottom of main.cpp) ======================
+void showLose()
+{
+    M5.Lcd.fillScreen(BLACK);
+
+    // --- Simple falling "X" marks / broken pieces animation ---
+    const int NUM_X = 25;
+    int cx[NUM_X], cy[NUM_X], cvx[NUM_X], cvy[NUM_X];
+    uint16_t xcol[NUM_X];
+
+    for (int i = 0; i < NUM_X; i++)
+    {
+        cx[i] = rand() % 320;
+        cy[i] = rand() % 100 - 100;                     // start above screen
+        cvx[i] = rand() % 7 - 3;                        // more chaotic horizontal movement
+        cvy[i] = rand() % 5 + 4;                        // faster fall
+        xcol[i] = (rand() % 2 == 0) ? RED : TFT_MAROON; // red tones for "loss" feel
+    }
+
+    // Text color (pulsing between red and dark red)
+    uint16_t textColors[2] = {RED, TFT_MAROON};
+    int colorIdx = 0;
+    int pulseCounter = 0;
+
+    while (true)
+    {
+        M5.update();
+
+        // Touch anywhere to dismiss
+        if (M5.Touch.ispressed())
+        {
+            break;
+        }
+
+        M5.Lcd.fillScreen(BLACK);
+
+        // Update and draw falling X marks
+        for (int i = 0; i < NUM_X; i++)
+        {
+            cx[i] += cvx[i];
+            cy[i] += cvy[i];
+
+            // Bounce off sides
+            if (cx[i] < 0 || cx[i] > 320)
+                cvx[i] = -cvx[i];
+
+            // Reset when off bottom
+            if (cy[i] > 240)
+            {
+                cy[i] = -20;
+                cx[i] = rand() % 320;
+                cvx[i] = rand() % 7 - 3;
+                cvy[i] = rand() % 5 + 4;
+            }
+
+            // Draw X
+            int size = 8 + (i % 6); // varied sizes
+            M5.Lcd.drawLine(cx[i] - size, cy[i] - size, cx[i] + size, cy[i] + size, xcol[i]);
+            M5.Lcd.drawLine(cx[i] + size, cy[i] - size, cx[i] - size, cy[i] + size, xcol[i]);
+        }
+
+        // Big "YOU LOST!" text (pulsing red)
+        M5.Lcd.setTextSize(5);
+        String msg = "YOU LOST";
+        int textW = M5.Lcd.textWidth(msg);
+        int textX = (320 - textW) / 2;
+        M5.Lcd.setTextColor(textColors[colorIdx]);
+        M5.Lcd.setCursor(textX, 70);
+        M5.Lcd.print(msg);
+
+        // Subtitle
+        M5.Lcd.setTextSize(2);
+        M5.Lcd.setTextColor(WHITE);
+        String sub = "Better luck next time";
+        int subW = M5.Lcd.textWidth(sub);
+        M5.Lcd.setCursor((320 - subW) / 2, 165);
+        M5.Lcd.print(sub);
+
+        pulseCounter++;
+        if (pulseCounter % 8 == 0) // slow pulse
+        {
+            colorIdx = (colorIdx + 1) % 2;
+        }
+
+        delay(60); // ~22 fps – smooth and lightweight
+    }
+
+    // Clean exit
+    M5.Lcd.fillScreen(BLACK);
+}
