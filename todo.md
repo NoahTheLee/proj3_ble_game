@@ -8,3 +8,6 @@
 [ ] 3. Wire Game
         [ ] Migrate to single wire solution
                 Generate rule(s?) off this
+        [ ] Different kinds of answer
+[ ] 4. Scaling Difficulty
+        [ ] Choose difficulty from start of game menu

@@ -1,16 +1,32 @@
 #include <Arduino.h>
 #include <M5Core2.h>
 #include "BLEHandler.h" // BLE Setup and communication handler
+#include "WireGame.h"
+#include "ButtonGame.h"
+#include "CodeGame.h"
+#include "MazeGame.h"
+#include "GameHelpers.h"
 
-// ====================== UI only ======================
+// Func decs
+// - Touch handling
 TouchPoint_t touch;
 bool isClient;
+// - Data handling
 String data;
+String newData;
+// - Syncing the randSeed
+unsigned long randSeed = 0;
+boolean randEdge = false;
+boolean randSet = false;
+// - Game life handler
+int numLives = 5;
+int numWins = 0;
 
 bool isTouchIn(int x, int y, int w, int h, int tx, int ty);
 bool pickIsClient();
 void checkData();
-void handleHeartbeat();
+void syncRand();
+void runGameSync(bool (*launchGame)(bool), String gameName);
 
 // ====================== SETUP ======================
 void setup()
@@ -21,18 +37,49 @@ void setup()
   isClient = pickIsClient(); // false = Host/Server, true = Join/Client
 
   Serial.println(isClient ? "I am CLIENT" : "I am SERVER");
+  if (!isClient)
+  {
+    randSeed = millis();
+    srand(randSeed);
+    Serial.print("Rand seeded with");
+    Serial.println(randSeed);
+  }
   BLE_Begin(isClient); // ← one line setup, handles everything
+  syncRand();
 }
 
 // ====================== LOOP ======================
 void loop()
 {
   M5.update();
+  doHeartbeat(isClient);
+  checkData();
 
   // ====================== SEND EXAMPLE (both devices do this the same way) ======================
-  if (M5.BtnA.wasPressed())
-  { // or any trigger you want
-    BLE_Send("Hello from " + String(isClient ? "CLIENT" : "SERVER") + " at " + String(millis()));
+
+  while (true)
+  {
+    // runGameSync(launchWireGame, "Wire Game");
+    switch (rand() % 4)
+    {
+    case 0:
+      runGameSync(launchButtonGame, "Button Game");
+      break;
+    case 1:
+      runGameSync(launchWireGame, "Wire Game");
+      break;
+    case 2:
+      runGameSync(launchCodeEntryGame, "Code Game");
+      break;
+    case 3:
+      runGameSync(launchMazeGame, "Maze Game");
+      break;
+    }
+
+    if (numWins == 5)
+    {
+      showWin();
+    }
   }
 
   delay(50); // adjust to your desired rate — BLE handles the heavy lifting
@@ -64,7 +111,7 @@ bool pickIsClient()
   M5.Lcd.setTextColor(WHITE);
   M5.Lcd.setTextSize(2);
   M5.Lcd.setCursor(60, 10);
-  M5.Lcd.print("Wire Game"); // TODO: Pick better title
+  M5.Lcd.print("Some game idk"); // TODO: Pick better title
 
   // ===== Button 1 =====
   M5.Lcd.fillRect(BTN1_X, BTN1_Y, BTN_W, BTN_H, BLUE);
@@ -116,34 +163,117 @@ void checkData()
 {
   if (BLE_HasNewData())
   {
-    data = BLE_Read();
-    Serial.println("→ I received: " + data);
-
-    // Example: show on screen
-    M5.Lcd.fillRect(0, 200, 320, 40, BLACK);
-    M5.Lcd.setCursor(10, 210);
-    M5.Lcd.print("RX: " + data.substring(0, 20)); // shorten if too long
+    newData = BLE_Read();
+    if (data != newData)
+    {
+      data = newData;
+      Serial.println("→ I received: " + data);
+    }
   }
 }
 
 /*
-Periodically update the client/server data
+Handle syncing srand between devices
 */
-void handleHeartbeat()
+void syncRand()
 {
+  while (true)
+  {
+    doHeartbeat(isClient);
+    checkData();
+    if (!isClient)
+    {
+      BLE_Send((randEdge ? "A" : "B") + String(randSeed)); // swapping between A and B to update new data
+      randEdge = !randEdge;
+      if (data == "Received SRAND")
+        return;
+    }
+    else
+    {
+      if (data.startsWith("A") || data.startsWith("B"))
+      {
+        randSeed = data.substring(1).toInt();
+        srand(randSeed);
+        Serial.print("Rand seeded with");
+        Serial.println(randSeed);
+        BLE_Send("Received SRAND");
+        return;
+      }
+    }
+    delay(50);
+  }
+}
+
+// Generic function to run any game and handle server/client sync
+void runGameSync(bool (*launchGame)(bool), String gameName)
+{
+  bool result = launchGame(isClient); // call the passed-in function
+
   if (isClient)
   {
-    BLE_ClientHandle(); // keep client scanning & connected
+    BLE_Send(result ? "WIN" : "LOSE");
   }
   else
   {
-    BLE_ServerPollReceive(); // server must poll for incoming data
+    while (true)
+    {
+      doHeartbeat(isClient);
+      checkData();
+      if (data == "WIN")
+      {
+        result = true;
+        break;
+      }
+      else if (data == "LOSE")
+      {
+        result = false;
+        break;
+      }
+    }
   }
 
-  if (BLE_IsConnected())
+  BLE_Send("Intermission");
+
+  Serial.println("I am " + String(isClient ? "client and I sent" : "server and I received") + (result ? " WIN " : " LOSE"));
+
+  M5.Lcd.fillScreen(BLACK);
+  M5.Lcd.setTextColor(WHITE);
+  M5.Lcd.setTextSize(2);
+
+  // Role display
+  M5.Lcd.setCursor(20, 20);
+  M5.Lcd.print(isClient ? "CLIENT" : "SERVER");
+
+  // Game name
+  M5.Lcd.setCursor(20, 60);
+  M5.Lcd.print("Game: ");
+  M5.Lcd.print(gameName);
+
+  // Result
+  M5.Lcd.setCursor(20, 100);
+  if (result)
   {
-    M5.Lcd.fillRect(0, 0, 100, 20, GREEN);
-    M5.Lcd.setCursor(5, 5);
-    M5.Lcd.print("CONNECTED");
+    M5.Lcd.setTextColor(GREEN);
+    M5.Lcd.print("Result: WIN");
   }
+  else
+  {
+    M5.Lcd.setTextColor(RED);
+    M5.Lcd.print("Result: LOSS");
+
+    // Only decrement once per call cycle
+    numLives--;
+  }
+
+  // Lives display
+  M5.Lcd.setTextColor(WHITE);
+  M5.Lcd.setCursor(20, 140);
+  M5.Lcd.print("Lives: ");
+  M5.Lcd.print(numLives);
+
+  M5.Lcd.setCursor(20, 180);
+  M5.Lcd.print("Wins: ");
+  M5.Lcd.print(++numWins);
+  delay(5000);
+  M5.Lcd.fillScreen(TFT_BLACK);
 }

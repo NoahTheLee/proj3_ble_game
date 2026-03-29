@@ -12,13 +12,6 @@
 const String serverHostname = "GameServer";
 const String clientName = "GameClient";
 
-// ====================== PUBLIC API (use these in main.cpp) ======================
-void BLE_Begin(bool asClient); // call once after pickIsClient()
-void BLE_Send(String message); // both roles — just call this
-bool BLE_HasNewData();         // check if something arrived
-String BLE_Read();             // returns the last received string (clears flag)
-bool BLE_IsConnected();        // useful for status
-
 // ====================== INTERNAL (you can ignore these) ======================
 static bool isClientRole = false;
 static bool deviceConnected = false;
@@ -109,7 +102,7 @@ void BLE_Begin(bool asClient)
         bleCharacteristic = bleService->createCharacteristic(CHARACTERISTIC_UUID,
                                                              BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE |
                                                                  BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_INDICATE);
-        bleCharacteristic->setValue("Ready");
+        bleCharacteristic->setValue("Hello from Server!");
         bleService->start();
 
         BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
@@ -158,7 +151,6 @@ void BLE_ServerPollReceive()
             uint8_t *data = bleCharacteristic->getData();
             lastReceived = String((char *)data, len);
             hasNewDataFlag = true;
-            Serial.println("Server received: " + lastReceived);
         }
     }
 }
@@ -216,5 +208,20 @@ void BLE_ClientHandle()
     if (!deviceConnected && doScan)
     {
         BLEDevice::getScan()->start(0);
+    }
+}
+
+/*
+Periodically update the client/server data
+*/
+void doHeartbeat(boolean isClient)
+{
+    if (isClient)
+    {
+        BLE_ClientHandle(); // keep client scanning & connected
+    }
+    else
+    {
+        BLE_ServerPollReceive(); // server must poll for incoming data
     }
 }
